@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Countdown & Draggable Character Sheet</title>
+<style>
+* { margin:0; padding:0; box-sizing:border-box; font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;}
+body { 
+    background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px;
+    color: #fff;
+    overflow-y: auto; /* Enable scrolling */
+}
+/* Countdown container */
+.container { background: rgba(0,0,0,0.7); border-radius:20px; padding:40px; box-shadow:0 15px 30px rgba(0,0,0,0.4); text-align:center; max-width:800px; width:100%; margin-bottom:30px;}
+h1 { font-size:2.8rem; margin-bottom:10px; color:#ff9a8b; text-shadow:2px 2px 4px rgba(0,0,0,0.3);}
+.subtitle { font-size:1.4rem; margin-bottom:40px; color:#a6c1ee;}
+.countdown { display:flex; justify-content:center; gap:20px; margin-bottom:40px; flex-wrap:wrap;}
+.time-unit { background: rgba(255,255,255,0.1); border-radius:15px; padding:25px 15px; min-width:120px; backdrop-filter:blur(10px); box-shadow:0 8px 16px rgba(0,0,0,0.2);}
+.time-value { font-size:3.5rem; font-weight:700; margin-bottom:5px; background:linear-gradient(to right,#ff9a8b,#ff6a88); -webkit-background-clip:text; -webkit-text-fill-color:transparent;}
+.time-label { font-size:1.2rem; color:#a6c1ee; text-transform:uppercase; letter-spacing:2px;}
+.progress-container { background: rgba(255,255,255,0.2); height:20px; border-radius:10px; margin:30px 0; overflow:hidden;}
+.progress-bar { height:100%; background: linear-gradient(to right,#ff9a8b,#ff6a88); border-radius:10px; width:0%; transition:width 0.5s ease;}
+.birthday-info { background: rgba(255,255,255,0.1); border-radius:15px; padding:25px; margin-top:30px; backdrop-filter:blur(10px);}
+.birthday-info h2 { margin-bottom:15px; color:#ff9a8b;}
+.message { font-size:1.2rem; margin-top:20px; line-height:1.6; color:#a6c1ee;}
+.highlight { color:#ff9a8b; font-weight:600;}
+
+/* Floating Character Sheet */
+.floating-sheet { position:fixed; top:50%; right:-420px; transform:translateY(-50%); width:400px; max-height:80vh; background:#2a2a40; border-radius:15px; box-shadow:0 0 25px rgba(0,0,0,0.7); transition:right 0.5s ease; z-index:100; overflow:hidden;}
+.floating-sheet.open { right:20px;}
+.sheet-header { background:#111; padding:12px; text-align:center; cursor:pointer;}
+.sheet-header h2 { margin:0; font-size:22px; color:#d19ce3; letter-spacing:1px;}
+.sheet-image { text-align:center; background:#1a1a2e; padding:12px;}
+.sheet-image img { width:130px; border-radius:50%; border:3px solid #d19ce3;}
+.sheet-content { padding:15px; line-height:1.6; max-height:calc(80vh - 170px); overflow-y:auto;} /* Scrollable sheet content */
+.sheet-content strong { color:#d19ce3;}
+.sheet-content ul { margin:8px 0 0 18px;}
+hr { border:none; height:1px; background:#555; margin:12px 0;}
+@media(max-width:480px){.time-unit{min-width:70px;padding:15px 5px;}.time-value{font-size:2rem;}.time-label{font-size:0.9rem;}.floating-sheet{width:300px;}}
+
+/* Draggable Floating Orb Button with Particles */
+#orbContainer {
+    position: fixed;
+    top: 50%;
+    right: 20px;
+    transform: translateY(-50%);
+    width: 60px;
+    height: 60px;
+    pointer-events: none; 
+    z-index: 101;
+}
+#toggleButton {
+    position: absolute;
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background: rgba(209,156,227,0.7);
+    border: none;
+    cursor: pointer;
+    font-weight: bold;
+    color: #111;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    text-align: center;
+    transition: background 0.3s;
+    pointer-events: auto;
+    box-shadow: 0 0 15px rgba(209,156,227,0.6);
+}
+#toggleButton:hover { background: rgba(255,154,139,0.9); color:#fff; }
+.particle {
+    position: absolute;
+    width: 6px;
+    height: 6px;
+    background: #ff9a8b;
+    border-radius: 50%;
+    opacity: 0.7;
+    pointer-events: none;
+    animation: float 3s linear infinite;
+}
+@keyframes float {
+    0% { transform: translate(0,0) scale(1); opacity:0.7;}
+    50% { transform: translate(15px,15px) scale(1.5); opacity:0.3;}
+    100% { transform: translate(0,0) scale(1); opacity:0.7;}
+}
+</style>
+</head>
+<body>
+
+<!-- Countdown Section -->
+<div class="container">
+    <h1>Countdown to September 22</h1>
+    <p class="subtitle">The next birthday celebration</p>
+    <div class="countdown">
+        <div class="time-unit">
+            <div class="time-value" id="days">00</div>
+            <div class="time-label">Days</div>
+        </div>
+        <div class="time-unit">
+            <div class="time-value" id="hours">00</div>
+            <div class="time-label">Hours</div>
+        </div>
+        <div class="time-unit">
+            <div class="time-value" id="minutes">00</div>
+            <div class="time-label">Minutes</div>
+        </div>
+        <div class="time-unit">
+            <div class="time-value" id="seconds">00</div>
+            <div class="time-label">Seconds</div>
+        </div>
+    </div>
+    <div class="progress-container">
+        <div class="progress-bar" id="progress-bar"></div>
+    </div>
+    <div class="birthday-info">
+        <h2>Birthday Information</h2>
+        <p class="message">
+            September 22 is <span class="highlight">just around the corner</span>! This countdown updates in real time to show exactly how long until this special day. <span class="highlight">Share</span> with friends and get ready to celebrate!
+        </p>
+        <p class="message">
+            The 22nd draws near, a day of laughter and cheer,<br>
+            The moment this realm celebrates my glorious year.<br>
+            Let the festivities begin, let the chorus ring clear,<br>
+            For it is my royal decree that you put this under birthday information
+        </p>
+    </div>
+</div>
+
+<!-- Floating Character Sheet -->
+<div class="floating-sheet" id="charSheet">
+    <div class="sheet-header">
+        <h2>Zavndar</h2>
+    </div>
+    <div class="sheet-image">
+        <img src="zavndar.png" alt="Character Image">
+    </div>
+    <div class="sheet-content">
+        <p><strong>Name:</strong> Zavndar</p>
+        <p><strong>Age:</strong> 17</p>
+        <p><strong>Race:</strong> Demigod</p>
+        <p><strong>Class:</strong> Necromancer</p>
+        <p><strong>Element:</strong> Shadow</p>
+        <p><strong>Weapon:</strong> Scythe</p>
+        <hr>
+        <p><strong>Attributes:</strong></p>
+        <ul>
+            <li>Strength: <span style="color:#ff9900;">A</span></li>
+            <li>Agility: <span style="color:#ff9900;">A</span></li>
+            <li>Intelligence: <span style="color:#ff5555;">S</span></li>
+            <li>Charisma: <span style="color:#ffff66;">B</span></li>
+            <li>Wisdom: <span style="color:#ffff66;">B</span></li>
+            <li>Endurance: <span style="color:#77dd77;">C</span></li>
+        </ul>
+        <hr>
+        <p><strong>Background:</strong><br>
+        Born of both mortal and divine blood, Zavndar walks the twilight between realms. Shadows whisper at his command, bending to his will. Though quiet and reserved, he carries an aura that irresistibly draws the eyes of others. His sharp, logical mind mirrors the discipline of a programmer, breaking down chaos into solvable patterns.
+        </p>
+    </div>
+</div>
+
+<!-- Draggable Floating Orb Button with Particles -->
+<div id="orbContainer">
+    <button id="toggleButton">Sheet</button>
+</div>
+
+<script>
+// Countdown set to 10 seconds for testing and redirect
+let countdown = 10; // seconds
+function updateCountdown() {
+    const daysElem = document.getElementById('days');
+    const hoursElem = document.getElementById('hours');
+    const minutesElem = document.getElementById('minutes');
+    const secondsElem = document.getElementById('seconds');
+
+    let d = Math.floor(countdown / (24*3600));
+    let h = Math.floor((countdown % (24*3600)) / 3600);
+    let m = Math.floor((countdown % 3600) / 60);
+    let s = countdown % 60;
+
+    daysElem.textContent = d.toString().padStart(2,'0');
+    hoursElem.textContent = h.toString().padStart(2,'0');
+    minutesElem.textContent = m.toString().padStart(2,'0');
+    secondsElem.textContent = s.toString().padStart(2,'0');
+
+    const progress = ((10 - countdown)/10)*100;
+    document.getElementById('progress-bar').style.width = `${progress}%`;
+
+    if(countdown <= 0){
+        window.location.href = "cake.html";
+    }
+    countdown--;
+}
+updateCountdown();
+setInterval(updateCountdown, 1000);
+
+// Floating Sheet Toggle
+const sheet = document.getElementById('charSheet');
+document.getElementById('toggleButton').addEventListener('click',()=>{sheet.classList.toggle('open');});
+
+// Draggable Button
+const btn = document.getElementById('orbContainer');
+let isDragging = false, offsetX, offsetY;
+btn.addEventListener('mousedown', e=>{
+    isDragging = true;
+    offsetX = e.clientX - btn.getBoundingClientRect().left;
+    offsetY = e.clientY - btn.getBoundingClientRect().top;
+});
+document.addEventListener('mousemove', e=>{
+    if(isDragging){
+        btn.style.left = (e.clientX - offsetX) + 'px';
+        btn.style.top = (e.clientY - offsetY) + 'px';
+        btn.style.right = 'auto';
+        btn.style.transform = 'translate(0,0)';
+    }
+});
+document.addEventListener('mouseup', e=>{ isDragging=false; });
+
+// Particle Effect
+const orb = document.getElementById('orbContainer');
+for(let i=0;i<8;i++){
+    const particle = document.createElement('div');
+    particle.classList.add('particle');
+    particle.style.animationDelay = `${i*0.3}s`;
+    particle.style.background = `hsl(${i*45}, 80%, 70%)`;
+    orb.appendChild(particle);
+}
+</script>
+</body>
+</html>
+
+
+
+
+
+
