@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Welcome to My Creative Zone - Birthday Edition</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Pacifico&family=Baloo+2:wght@400;700&display=swap">
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+    background: linear-gradient(to bottom, #1a0033, #330066);
+    color: white;
+    font-family: 'Baloo 2', cursive;
+    min-height: 100vh;
+    overflow-x: hidden;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+    padding: 20px;
+}
+.container {
+    text-align: center;
+    z-index: 10;
+    padding: 2.5rem;
+    background: rgba(0, 0, 0, 0.5);
+    border-radius: 20px;
+    box-shadow: 0 0 40px rgba(255, 215, 0, 0.3);
+    backdrop-filter: blur(8px);
+    max-width: 900px;
+    width: 100%;
+    animation: containerAppear 1.5s ease-out;
+}
+h1 {
+    font-family: 'Pacifico', cursive;
+    font-size: 4.5rem;
+    margin-bottom: 1rem;
+    text-shadow: 3px 3px 0 #ff0066, -3px -3px 0 #00ccff;
+    animation: colorChange 8s infinite alternate;
+}
+.birthday-text { font-size: 2.2rem; margin: 1.5rem 0; color: #ffcc00; text-shadow: 0 0 10px rgba(255, 204, 0, 0.8); }
+.led-display { font-family: 'Courier New', monospace; background: #111; padding: 1.2rem; border-radius: 15px; border: 2px solid #333; margin: 2rem auto; width: 100%; overflow: hidden; box-shadow: 0 0 15px rgba(255, 204, 0, 0.4); }
+.led-text { font-size: 1.6rem; font-weight: bold; animation: ledAnimation 8s infinite; white-space: nowrap; }
+.modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index:100; justify-content:center; align-items:center; }
+.modal-content { background: linear-gradient(135deg,#1a0033,#330066); padding:2rem; border-radius:15px; max-width:600px; width:90%; text-align:center; box-shadow:0 0 30px rgba(255,0,102,0.5); border:2px solid #ffcc00; }
+.modal h2 { color:#ffcc00; margin-bottom:1rem; font-size:2rem; }
+.modal p { font-size:1.2rem; line-height:1.6; margin-bottom:1.5rem; }
+.close-modal { background:#ff0066; color:white; border:none; padding:0.8rem 1.5rem; border-radius:50px; font-size:1.1rem; cursor:pointer; transition:all 0.3s ease; }
+.close-modal:hover { background:#ff3385; transform:scale(1.05); }
+.cake-container { margin-top:2rem; width:100%; max-width:700px; aspect-ratio: 16 / 9; border-radius:10px; overflow:hidden; position:relative; box-shadow: 0 0 20px rgba(255, 204, 0, 0.4); }
+.cake-container iframe { width:100%; height:100%; border:none; }
+.restart-button { margin:1rem 0; padding:0.8rem 1.5rem; background:#ffcc00; color:#330066; border:none; border-radius:50px; font-size:1.1rem; cursor:pointer; transition:all 0.3s ease; font-weight:bold; }
+.restart-button:hover { background:#fff266; transform:scale(1.05); }
+
+/* Tabs */
+.tabs-container { margin-top:2rem; width:100%; }
+.tabs-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(200px,1fr)); gap:15px; margin-top:1.5rem; }
+.tab { background: linear-gradient(135deg,#ff0066,#ffcc00); color:white; border:none; padding:1.2rem; border-radius:10px; font-size:1.1rem; font-weight:bold; cursor:pointer; transition:all 0.3s ease; text-align:center; }
+.tab:hover { transform: translateY(-5px); }
+.tab-content { display:none; margin-top:2rem; padding:1.5rem; background: rgba(0,0,0,0.3); border-radius:15px; text-align:left; }
+.tab-content h3 { color:#ffcc00; text-align:center; margin-bottom:1rem; }
+.tab-iframe { width:100%; height:500px; border:none; margin-top:1rem; }
+
+/* Character Sheet Styles */
+.sheet-container { background: #2a2a40; border-radius: 15px; padding: 15px; max-height: 600px; overflow-y: auto; box-shadow: 0 0 25px rgba(0,0,0,0.7); }
+.sheet-header { background: #111; padding: 12px; text-align: center; }
+.sheet-header h2 { margin: 0; font-size: 22px; color: #d19ce3; }
+.sheet-image { text-align: center; background: #1a1a2e; padding: 12px; }
+.sheet-image img { width: 130px; border-radius: 50%; border: 3px solid #d19ce3; }
+.sheet-content { padding: 12px; line-height: 1.6; }
+.sheet-content strong { color: #d19ce3; }
+.sheet-content ul { margin: 8px 0 0 18px; }
+hr { border: none; height: 1px; background: #555; margin: 12px 0; }
+
+/* Rick's Games */
+#rickGame { display:none; text-align:center; }
+#gameArea { position:relative; width:100%; height:300px; border:2px solid #ffcc00; margin:1rem auto; background:rgba(30,30,46,0.8); border-radius:10px; overflow:hidden; }
+#box { position:absolute; width:50px; height:50px; background:linear-gradient(45deg,#ff3864,#f72585); border-radius:10px; cursor:pointer; box-shadow:0 0 15px rgba(247,37,133,0.7); transition:transform 0.2s; }
+#score,#timer { font-size:1.2rem; font-weight:bold; }
+#score { color:#4cc9f0; }
+#timer { color:#f72585; }
+button.game-btn { margin:0.5rem; padding:0.5rem 1rem; border-radius:50px; border:none; cursor:pointer; font-weight:bold; }
+.difficulty-btn.active { box-shadow:0 0 15px rgba(247,37,133,0.7); }
+.message { margin-top:10px; padding:8px; border-radius:10px; background:rgba(247,37,133,0.2); min-height:50px; display:flex; align-items:center; justify-content:center; font-style:italic; }
+
+/* Animations */
+@keyframes colorChange { 0%{color:#ff0066;} 33%{color:#00ccff;} 66%{color:#ffcc00;} 100%{color:#ff66cc;} }
+@keyframes ledAnimation { 0%{color:#ff0000;}25%{color:#00a2ff;}50%{color:#ffcc00;}75%{color:#00ff66;}100%{color:#ff0000;} }
+@keyframes containerAppear { from{opacity:0;transform:translateY(50px);} to{opacity:1;transform:translateY(0);} }
+</style>
+</head>
+<body>
+
+<div class="modal" id="welcomeModal">
+    <div class="modal-content">
+        <h2>Welcome to My Testing Zone</h2>
+        <p>"I am not one for all this but I wanted an opportunity to test my limits. So as a favor to me, test my stuff, break them, make them - I don't care. Just let me know what you encounter."</p>
+        <button class="close-modal" onclick="closeModal()">I Understand</button>
+    </div>
+</div>
+
+<div class="container" id="mainContainer">
+    <h1>Welcome to My Creative Zone</h1>
+    <div class="birthday-text">It's My Birthday Celebration!</div>
+    <div class="led-display"><div class="led-text">*** HAPPY BIRTHDAY TO ME! *** CELEBRATION TIME ***</div></div>
+    
+    <div class="cake-container" id="cake-container">
+        <iframe id="cake-frame" src="cake.html"></iframe>
+    </div>
+    <button class="restart-button" onclick="restartCake()">🎂 Replay Cake Animation</button>
+
+    <div class="tabs-container">
+        <h2>Interactive Tabs</h2>
+        <div class="tabs-grid">
+            <button class="tab" onclick="openTab('tab1')">🌸 Flowers</button>
+            <button class="tab" onclick="openTab('tab2')">🎬 Video Showcase</button>
+            <button class="tab" onclick="openTab('tab3')">✨ Character Sheet</button>
+            <button class="tab" onclick="openTab('rickGame')">🎮 Rick's Games</button>
+        </div>
+
+        <div id="tab1" class="tab-content">
+            <h3>Flowers Showcase</h3>
+            <iframe class="tab-iframe" src="flower.html"></iframe>
+        </div>
+
+        <div id="tab2" class="tab-content">
+            <h3>Showcase Video</h3>
+            <div class="video-wrapper">
+                <video id="holdVideo" src="hold.mp4" loop controls></video>
+            </div>
+            <p style="margin-top:1rem; font-size:1.2rem; color:#ffcc00;">Thought I would show this off — created by Shamar</p>
+        </div>
+
+        <!-- Character Sheet restored -->
+        <div id="tab3" class="tab-content">
+            <h3>Character Sheet</h3>
+            <div class="sheet-container">
+                <div class="sheet-header"><h2>Zavndar</h2></div>
+                <div class="sheet-image"><img src="zavndar.png" alt="Character Image"></div>
+                <div class="sheet-content">
+                    <p><strong>Name:</strong> Zavndar</p>
+                    <p><strong>Age:</strong> 17</p>
+                    <p><strong>Race:</strong> Demigod</p>
+                    <p><strong>Class:</strong> Warrior Mage</p>
+                    <p><strong>Abilities:</strong></p>
+                    <ul>
+                        <li>Elemental Magic</li>
+                        <li>Enhanced Agility</li>
+                        <li>Telepathy</li>
+                    </ul>
+                    <p><strong>Backstory:</strong> Zavndar is a young demigod destined for greatness, learning to harness his magical powers while battling inner and external demons.</p>
+                    <hr>
+                    <p><strong>Equipment:</strong> Mystic Blade, Armor of Shadows</p>
+                    <p><strong>Skills:</strong> Swordsmanship, Spellcasting, Strategy</p>
+                </div>
+            </div>
+        </div>
+
+        <div id="rickGame" class="tab-content">
+            <h3>Rick's Click Challenge</h3>
+            <div>
+                <span id="score">Score: 0</span> | <span id="timer">Time: 30</span>s
+            </div>
+            <div id="gameArea">
+                <div id="box"></div>
+            </div>
+            <div>
+                <span>Difficulty:</span>
+                <button class="game-btn difficulty-btn active" onclick="setDifficulty('easy')">Easy</button>
+                <button class="game-btn difficulty-btn" onclick="setDifficulty('medium')">Medium</button>
+                <button class="game-btn difficulty-btn" onclick="setDifficulty('hard')">Hard</button>
+                <button class="game-btn difficulty-btn" onclick="setDifficulty('Rickanator')">Rickanator</button>
+            </div>
+            <div class="message" id="message"></div>
+            <button class="restart-button" onclick="startGame()">Start Game</button>
+        </div>
+
+    </div>
+</div>
+
+<script>
+window.addEventListener('load', function() { document.getElementById('welcomeModal').style.display = 'flex'; });
+function closeModal() { document.getElementById('welcomeModal').style.display = 'none'; }
+function restartCake() { const iframe=document.getElementById('cake-frame'); iframe.src=iframe.src; document.querySelector('.cake-container').scrollIntoView({behavior:'smooth',block:'center'});}
+function openTab(tabId){ const video=document.getElementById('holdVideo'); if(video && document.getElementById('tab2').style.display==='block' && tabId!=='tab2'){video.pause(); video.currentTime=0;} document.querySelectorAll('.tab-content').forEach(tab=>tab.style.display='none'); document.getElementById(tabId).style.display='block'; if(tabId==='tab2') video.play().catch(e=>console.log(e)); }
+
+// ================= Rick's Game =================
+let score=0, timeLeft=30, gameInterval, timerInterval, missedClicks=0;
+let speedMultiplier=1, difficulty='easy', gameActive=false;
+const box=document.getElementById('box');
+const gameArea=document.getElementById('gameArea');
+const scoreDisplay=document.getElementById('score');
+const timerDisplay=document.getElementById('timer');
+const message=document.getElementById('message');
+let boxVelocityX=3, boxVelocityY=3;
+
+function setDifficulty(level){ difficulty=level; document.querySelectorAll('.difficulty-btn').forEach(btn=>btn.classList.remove('active')); event.target.classList.add('active'); }
+
+function startGame(){
+    score=0; missedClicks=0; timeLeft=30; gameActive=true;
+    scoreDisplay.textContent="Score: "+score; timerDisplay.textContent="Time: "+timeLeft; message.innerHTML="";
+    switch(difficulty){ case 'easy': speedMultiplier=2; break; case 'medium': speedMultiplier=4; break; case 'hard': speedMultiplier=6; break; case 'Rickanator': speedMultiplier=8; break; }
+    boxVelocityX=speedMultiplier; boxVelocityY=speedMultiplier;
+    box.style.left=Math.random()*(gameArea.clientWidth-50)+'px';
+    box.style.top=Math.random()*(gameArea.clientHeight-50)+'px';
+    box.style.display='block';
+    clearInterval(gameInterval); clearInterval(timerInterval);
+    gameInterval=setInterval(updateBox,20);
+    timerInterval=setInterval(()=>{ timeLeft--; timerDisplay.textContent="Time: "+timeLeft; if(timeLeft<=0) endGame(); },1000);
+}
+
+function updateBox(){
+    if(!gameActive) return;
+    let newX=parseFloat(box.style.left)+boxVelocityX;
+    let newY=parseFloat(box.style.top)+boxVelocityY;
+    if(newX<=0 || newX>=gameArea.clientWidth-50){ boxVelocityX*=-1; newX=Math.max(0,Math.min(newX,gameArea.clientWidth-50)); }
+    if(newY<=0 || newY>=gameArea.clientHeight-50){ boxVelocityY*=-1; newY=Math.max(0,Math.min(newY,gameArea.clientHeight-50)); }
+    box.style.left=newX+'px'; box.style.top=newY+'px';
+
+    if(difficulty==='Rickanator'){
+        let spawnRate=0.03; 
+        if(Math.random()<spawnRate){
+            const clone=box.cloneNode(true);
+            clone.style.background='#ffffff';
+            clone.style.left=Math.random()*(gameArea.clientWidth-50)+'px';
+            clone.style.top=Math.random()*(gameArea.clientHeight-50)+'px';
+            gameArea.appendChild(clone);
+            clone.addEventListener('click', ()=>{
+                if(!gameActive) return;
+                score--; if(score<0) score=0; scoreDisplay.textContent="Score: "+score;
+                clone.remove();
+            });
+            setTimeout(()=>{ if(clone) clone.remove(); },3000);
+        }
+    }
+}
+
+box.addEventListener('click', ()=>{
+    if(!gameActive) return;
+    score++; scoreDisplay.textContent="Score: "+score;
+    showMessage(score);
+});
+
+gameArea.addEventListener('click', (e)=>{ if(e.target!==box){ missedClicks++; showMessage(score, missedClicks); } });
+
+function showMessage(currentScore, misses=missedClicks){
+    let msg="";
+    if(currentScore>=10){ msg="🎉 Rick: 'You got it! Outstanding!'" }
+    else if(currentScore>=5){ msg="😏 Rick: 'Not bad, but keep trying…'" }
+    if(misses>0){ msg+="<br>💢 Rick insults: "; if(misses===1) msg+="You missed! Are you even trying?"; else if(misses===2) msg+="C'mon Morty, focus!"; else if(misses===3) msg+="This is career ending! <br><img src='https://media1.tenor.com/m/iHRHfxMjgF4AAAAC/rick-and-morty-horrible.gif' width='150'/>"; else msg+="Even Rick would abandon you!"; }
+    message.innerHTML=msg;
+}
+
+function endGame(){
+    gameActive=false; clearInterval(gameInterval); clearInterval(timerInterval);
+    if(score>=10){
+        message.innerHTML = "🎉 Rick: 'You got it! Outstanding! You win!'";
+    } else {
+        message.innerHTML = `😢 Rick: 'You lost! Better luck next time!' <br><img src="https://y.yarn.co/9f5937d0-6672-40ed-9e49-97ebd17a1a4b_text.gif" width="200"/>`;
+    }
+}
+</script>
+</body>
+</html>
